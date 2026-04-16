@@ -1,4 +1,4 @@
 docker run --name pg-fenix \
   -e POSTGRES_PASSWORD=mysecretpassword \
-  -v /home/fenix/data:/var/lib/postgresql/data \
+  -v /home/fenix/data:/data/pg \
   -d postgres
