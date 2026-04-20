@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres_default_password}
+    ports:
+      - "5432:5432"
+    networks:
+      - my-pg-network
+    volumes:
+      - pg_data:/var/lib/pg/data
+
+networks:
+  my-pg-network:
+    driver: bridge
+
+volumes:
+  pg_data:
