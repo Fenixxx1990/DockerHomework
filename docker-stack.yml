@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Nginx: по одному инстансу на каждую ноду кластера
+  # Nginx: запускается на каждой ноде кластера (Stateless)
   web:
     image: nginx:latest
     networks:
@@ -10,11 +10,11 @@ services:
       - source: nginx_config
         target: /etc/nginx/conf.d/default.conf
     deploy:
-      mode: global  # Запускает ровно по 1 контейнеру на каждой доступной ноде
+      mode: global
       restart_policy:
         condition: on-failure
 
-  # Postgres: Stateful-сервис с привязкой к конкретной ноде
+  # Postgres: привязан к конкретной ноде (Stateful)
   db:
     image: postgres:15
     environment:
@@ -29,23 +29,22 @@ services:
       replicas: 1
       placement:
         constraints:
-          # Запускать только на ноде с меткой storage=true
           - node.labels.storage == true
       restart_policy:
         condition: on-failure
 
 networks:
   app-network:
-    driver: overlay  # Общая сеть для взаимодействия между нодами
+    driver: overlay
 
 configs:
   nginx_config:
-    file: ./nginx.conf  # Файл должен лежать рядом с stack.yml
+    file: ./default.conf  # Исправлено: путь теперь соответствует твоему файлу
 
 secrets:
   db_password:
-    external: true  # Секрет должен быть создан заранее командой docker secret create
+    external: true  # Оставляем external, это безопасный стандарт для Git
 
 volumes:
   db_data:
-    driver: local  # Данные будут храниться на той ноде, где запустится postgres
+    driver: local
