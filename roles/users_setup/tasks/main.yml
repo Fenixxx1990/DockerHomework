@@ -1,0 +1,25 @@
+---
+- name: Подключить зашифрованные переменные
+  ansible.builtin.include_vars:
+    file: vault.yml
+
+- name: Создать пользователей и сгенерировать SSH-ключи
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    shell: /bin/bash
+    groups: docker
+    append: true
+    state: present
+    generate_ssh_key: true
+    ssh_key_bits: 4096
+    ssh_key_file: .ssh/id_rsa
+  loop: "{{ users_setup_data }}"
+  no_log: true
+
+- name: Добавить публичный ключ в authorized_keys
+  ansible.posix.authorized_key:
+    user: "{{ item.name }}"
+    state: present
+    key: "{{ lookup('ansible.builtin.file', '/home/' + item.name + '/.ssh/id_rsa.pub') }}"
+  loop: "{{ users_setup_data }}"

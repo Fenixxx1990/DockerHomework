@@ -1,0 +1,6 @@
+---
+- name: Настройка доступа пользователей
+  hosts: all
+  become: true
+  roles:
+    - users_setup
