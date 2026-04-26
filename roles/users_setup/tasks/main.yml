@@ -3,10 +3,15 @@
   ansible.builtin.include_vars:
     file: vault.yml
 
+- name: Убедиться в существовании группы docker
+  ansible.builtin.group:
+    name: docker
+    state: present
+
 - name: Создать пользователей и сгенерировать SSH-ключи
   ansible.builtin.user:
     name: "{{ item.name }}"
-    password: "{{ item.password }}"
+    password: "{{ item.password | password_hash('sha512') }}"
     shell: /bin/bash
     groups: docker
     append: true
@@ -14,6 +19,7 @@
     generate_ssh_key: true
     ssh_key_bits: 4096
     ssh_key_file: .ssh/id_rsa
+    force: false
   loop: "{{ users_setup_data }}"
   no_log: true
 
